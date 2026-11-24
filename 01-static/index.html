@@ -1,3 +1,114 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AWS Academy CI/CD</title><link rel="stylesheet" href="styles.css"></head>
-<body><main><p class="eyebrow">AWS ACADEMY LEARNER LAB</p><h1>Automated website deployment</h1><p>GitHub → CodePipeline → Amazon S3</p><p id="version">Version 1.0.1</p><p>Update this version, push to main, and verify the new content at your S3 website endpoint.</p></main></body></html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Abhinav Kumar Singh · AWS Academy CI/CD</title>
+  <meta name="description" content="Abhinav Kumar Singh — Distributed systems, backend architectures, and automated AWS CI/CD pipelines.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="https://abhinavkumarsingh.tech" target="_blank" rel="noopener">
+        <span class="brand-dot"></span>
+        abhinavkumarsingh<span class="accent">.tech</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#pipelines">Pipelines</a>
+        <a href="https://github.com/abhinav29102005/aws-assesment" target="_blank" rel="noopener">GitHub</a>
+        <span class="version-pill" id="version">v1.0.2</span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="status-badge">
+        <span class="pulse"></span>
+        <span>Automated S3 Deployment · GitHub → CodePipeline → Amazon S3</span>
+      </div>
+      <h1>Abhinav Kumar Singh</h1>
+      <p class="subtitle">
+        Computer Engineering @ Thapar Institute of Engineering &amp; Technology (1024030440).
+        Building distributed systems, backend architectures, and automated cloud CI/CD pipelines.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://abhinavkumarsingh.tech" target="_blank" rel="noopener">Visit Portfolio ↗</a>
+        <a class="btn btn-secondary" href="https://github.com/abhinav29102005/aws-assesment" target="_blank" rel="noopener">View Source Repo</a>
+      </div>
+    </section>
+
+    <section id="pipelines" class="section">
+      <div class="section-head">
+        <h2>AWS Academy CI/CD Architecture</h2>
+        <p>Five production-style delivery workflows deployed and verified across AWS.</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <div class="card-top">
+            <span class="tag">01 · S3 + CodePipeline</span>
+            <span class="badge badge-live">Live</span>
+          </div>
+          <h3>Static Website Delivery</h3>
+          <p>Push-triggered CodePipeline V2 webhook from GitHub <code>main</code> directly to S3 static web hosting.</p>
+          <div class="mono-meta">ap-southeast-2 · WebhookV2</div>
+        </article>
+
+        <article class="card">
+          <div class="card-top">
+            <span class="tag">02 · CodeBuild</span>
+            <span class="badge badge-info">Tested</span>
+          </div>
+          <h3>Automated Build &amp; Unit Tests</h3>
+          <p>Node.js 22 HTTP test suite with JUnit XML reporting and intentional failure gate verification.</p>
+          <div class="mono-meta">buildspec-tests.yml · 5/5 local</div>
+        </article>
+
+        <article class="card">
+          <div class="card-top">
+            <span class="tag">03 · EC2 + CodeDeploy</span>
+            <span class="badge badge-live">Live</span>
+          </div>
+          <h3>Host Agent Rolling Updates</h3>
+          <p>Ubuntu 24.04 EC2 instance running <code>codedeploy-agent</code>, systemd service, and lifecycle hooks.</p>
+          <div class="mono-meta">us-east-1 · Deployment d-551GT870N</div>
+        </article>
+
+        <article class="card">
+          <div class="card-top">
+            <span class="tag">04 · Elastic Beanstalk</span>
+            <span class="badge badge-live">Live</span>
+          </div>
+          <h3>Zero-Downtime PaaS</h3>
+          <p>Immutable Node.js 22 AL2023 environment with injected <code>APP_ENV</code> configuration.</p>
+          <div class="mono-meta">us-east-1 · Immutable Update</div>
+        </article>
+
+        <article class="card">
+          <div class="card-top">
+            <span class="tag">05 · Docker + Amazon ECR</span>
+            <span class="badge badge-live">Active</span>
+          </div>
+          <h3>Containerized Registry Pipeline</h3>
+          <p>Multi-stage Node.js 22 container image built from <code>Dockerfile</code> and pushed to Amazon ECR.</p>
+          <div class="mono-meta">us-east-1 · academy-cicd-app:latest</div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Abhinav Kumar Singh · Roll No 1024030440</span>
+      <span>Deployed via AWS CodePipeline on Amazon S3</span>
+    </div>
+  </footer>
+</body>
+</html>
