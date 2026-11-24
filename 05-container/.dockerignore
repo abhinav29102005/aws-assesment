@@ -1,0 +1,7 @@
+node_modules
+.git
+reports
+dist
+*.zip
+.env
+app.test.js

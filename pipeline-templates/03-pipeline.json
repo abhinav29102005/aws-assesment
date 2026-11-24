@@ -1,0 +1,93 @@
+{
+  "pipeline": {
+    "name": "academy-ec2-pipeline",
+    "roleArn": "REPLACE_PIPELINE_SERVICE_ROLE_ARN",
+    "artifactStore": {
+      "type": "S3",
+      "location": "REPLACE_PRIVATE_ARTIFACT_BUCKET"
+    },
+    "pipelineType": "V2",
+    "executionMode": "QUEUED",
+    "stages": [
+      {
+        "name": "Source",
+        "actions": [
+          {
+            "name": "GitHub",
+            "actionTypeId": {
+              "category": "Source",
+              "owner": "AWS",
+              "provider": "CodeStarSourceConnection",
+              "version": "1"
+            },
+            "configuration": {
+              "ConnectionArn": "REPLACE_AVAILABLE_CONNECTION_ARN",
+              "FullRepositoryId": "abhinav29102005/aws-assesment",
+              "BranchName": "main",
+              "DetectChanges": "true",
+              "OutputArtifactFormat": "CODE_ZIP"
+            },
+            "runOrder": 1,
+            "outputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BuildAndPackage",
+        "actions": [
+          {
+            "name": "Package",
+            "actionTypeId": {
+              "category": "Build",
+              "owner": "AWS",
+              "provider": "CodeBuild",
+              "version": "1"
+            },
+            "configuration": {
+              "ProjectName": "academy-ec2-package"
+            },
+            "inputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ],
+            "outputArtifacts": [
+              {
+                "name": "DeployArtifact"
+              }
+            ],
+            "runOrder": 1
+          }
+        ]
+      },
+      {
+        "name": "Deploy",
+        "actions": [
+          {
+            "name": "Deploy",
+            "actionTypeId": {
+              "category": "Deploy",
+              "owner": "AWS",
+              "provider": "CodeDeploy",
+              "version": "1"
+            },
+            "configuration": {
+              "ApplicationName": "academy-ec2",
+              "DeploymentGroupName": "academy-ec2-group"
+            },
+            "runOrder": 1,
+            "inputArtifacts": [
+              {
+                "name": "DeployArtifact"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

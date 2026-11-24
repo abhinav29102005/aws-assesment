@@ -1,0 +1,18 @@
+[Unit]
+Description=AWS Academy demo web application
+After=network.target
+[Service]
+Type=simple
+User=academyapp
+Group=academyapp
+WorkingDirectory=/opt/academy-app
+ExecStart=/usr/bin/node /opt/academy-app/app.js
+Environment=PORT=8080
+Environment=APP_ENV=ec2
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

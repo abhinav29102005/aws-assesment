@@ -1,0 +1,11 @@
+const {test, before, after} = require('node:test');
+const assert = require('node:assert/strict');
+const {createServer} = require('./app');
+let server, base;
+before(async () => { server=createServer(); await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve)); base=`http://127.0.0.1:${server.address().port}`; });
+after(async () => { await new Promise(resolve=>server.close(resolve)); });
+test('home returns message and version', async()=>{ const r=await fetch(base); assert.equal(r.status,200); const body=await r.json(); assert.equal(body.message,'AWS Academy CI/CD demo'); assert.equal(body.version,'1.0.0'); });
+test('health is healthy', async()=>{ const r=await fetch(base+'/health'); assert.equal(r.status,200); assert.deepEqual(await r.json(),{status:'ok'}); });
+test('unknown route returns 404',async()=>{ const r=await fetch(base+'/missing'); assert.equal(r.status,404); });
+test('POST is rejected',async()=>{ const r=await fetch(base,{method:'POST'}); assert.equal(r.status,405); });
+test('environment configuration is injected',async()=>{ const previous=process.env.APP_ENV; process.env.APP_ENV='staging'; try { const r=await fetch(base); assert.equal((await r.json()).environment,'staging'); } finally { if(previous===undefined) delete process.env.APP_ENV; else process.env.APP_ENV=previous; } });

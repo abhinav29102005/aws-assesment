@@ -1,13 +1,15 @@
 # AWS Academy CI/CD Assignment
 
-Implementations follow the supplied assignment order:
+Five exercises in the original assignment order. All source remains on `main` in one repository.
 
-1. `01-static` - S3 static website deployment using CodePipeline
-2. `02-codebuild` - Node.js application tests and build artifacts
-3. `03-codedeploy` - EC2 deployment lifecycle hooks
-4. `04-beanstalk` - Immutable deployment and environment settings
-5. `05-container` - Docker builds and ECR publication
+| Assignment | Source | Root buildspec |
+|---|---|---|
+| 1 Static website | `01-static` | `buildspec-static.yml` |
+| 2 Build and tests | `02-codebuild` | `buildspec-tests.yml` |
+| 3 EC2 CodeDeploy | `03-codedeploy` | `buildspec-ec2.yml` |
+| 4 Elastic Beanstalk | `04-beanstalk` | `buildspec-beanstalk.yml` |
+| 5 Docker and ECR | `05-container` | `buildspec-container.yml` |
 
-Deployment instructions are in `RUNBOOK.md`. Configuration files do not establish that cloud execution succeeded. Check the execution status document for verified results and restrictions.
+Read [RUNBOOK.md](RUNBOOK.md) for execution steps and [EXECUTION-STATUS.md](EXECUTION-STATUS.md) for verified results. Root buildspecs select the correct directory and emit deployable artifacts without the parent directory. Do not feed the entire repository ZIP directly to a website, CodeDeploy, or Beanstalk deployment action.
 
-This repository uses one main branch with five exercise directories. Build and deployment stages must select the relevant subdirectory; see the monorepo buildspecs and packaging scripts.
+Local tests: `cd 02-codebuild && node --test app.test.js` with Node.js 22 or later. The intentionally failing test script should be used only on a temporary branch and reverted afterwards. No credentials belong in this repository.

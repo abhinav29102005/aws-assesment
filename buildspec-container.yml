@@ -1,0 +1,32 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+    - cd "$CODEBUILD_SRC_DIR/05-container"
+    - "if ! docker info >/dev/null 2>&1; then\n  nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock\
+      \ > /tmp/dockerd.log 2>&1 &\n  timeout 30 sh -c 'until docker info >/dev/null\
+      \ 2>&1; do sleep 1; done'\nfi\n"
+  pre_build:
+    commands:
+    - ': "${ECR_REPOSITORY_URI:?Set ECR_REPOSITORY_URI on the CodeBuild project}"'
+    - export IMAGE_TAG="$(printf '%s' "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c1-12)-${CODEBUILD_BUILD_NUMBER}"
+    - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username
+      AWS --password-stdin "${ECR_REPOSITORY_URI%%/*}"
+  build:
+    on-failure: ABORT
+    commands:
+    - node --test app.test.js
+    - docker build -t "academy-demo:$IMAGE_TAG" .
+    - docker tag "academy-demo:$IMAGE_TAG" "$ECR_REPOSITORY_URI:$IMAGE_TAG"
+  post_build:
+    commands:
+    - test "$CODEBUILD_BUILD_SUCCEEDING" = "1"
+    - docker push "$ECR_REPOSITORY_URI:$IMAGE_TAG"
+    - printf '[{"name":"academy-app","imageUri":"%s:%s"}]' "$ECR_REPOSITORY_URI" "$IMAGE_TAG"
+      > imagedefinitions.json
+artifacts:
+  files:
+  - 05-container/imagedefinitions.json
+  discard-paths: 'yes'

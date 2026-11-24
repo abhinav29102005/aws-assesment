@@ -1,0 +1,17 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  build:
+    on-failure: ABORT
+    commands:
+    - cd "$CODEBUILD_SRC_DIR/03-codedeploy"
+    - node --test app.test.js
+    - mkdir -p "$CODEBUILD_SRC_DIR/dist"
+    - cp app.js package.json appspec.yml academy-app.service "$CODEBUILD_SRC_DIR/dist/"
+    - cp -r scripts "$CODEBUILD_SRC_DIR/dist/"
+artifacts:
+  base-directory: dist
+  files:
+  - '**/*'

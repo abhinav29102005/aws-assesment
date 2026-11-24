@@ -1,0 +1,69 @@
+{
+  "pipeline": {
+    "name": "academy-container-pipeline",
+    "roleArn": "REPLACE_PIPELINE_SERVICE_ROLE_ARN",
+    "artifactStore": {
+      "type": "S3",
+      "location": "REPLACE_PRIVATE_ARTIFACT_BUCKET"
+    },
+    "pipelineType": "V2",
+    "executionMode": "QUEUED",
+    "stages": [
+      {
+        "name": "Source",
+        "actions": [
+          {
+            "name": "GitHub",
+            "actionTypeId": {
+              "category": "Source",
+              "owner": "AWS",
+              "provider": "CodeStarSourceConnection",
+              "version": "1"
+            },
+            "configuration": {
+              "ConnectionArn": "REPLACE_AVAILABLE_CONNECTION_ARN",
+              "FullRepositoryId": "abhinav29102005/aws-assesment",
+              "BranchName": "main",
+              "DetectChanges": "true",
+              "OutputArtifactFormat": "CODE_ZIP"
+            },
+            "runOrder": 1,
+            "outputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Build",
+        "actions": [
+          {
+            "name": "Build",
+            "actionTypeId": {
+              "category": "Build",
+              "owner": "AWS",
+              "provider": "CodeBuild",
+              "version": "1"
+            },
+            "configuration": {
+              "ProjectName": "academy-container"
+            },
+            "runOrder": 1,
+            "inputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ],
+            "outputArtifacts": [
+              {
+                "name": "ImageDefinitions"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

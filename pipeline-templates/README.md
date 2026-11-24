@@ -1,0 +1,6 @@
+# CodePipeline creation templates
+Replace every REPLACE_ value and OWNER/REPOSITORY with the actual lab values. Create prerequisite resources and approved service roles first. CodeConnections connection must be AVAILABLE. Provider identifier CodeStarSourceConnection remains the correct pipeline action provider name even though the service is now called CodeConnections. Pipelines use a private S3 artifact store and sequential V2 execution.
+
+Create each using `aws codepipeline create-pipeline --cli-input-json file://01-pipeline.json` (substitute the selected filename). This creates billable resources. These templates have not been submitted to AWS. Assignment 2 uses standalone CodeBuild webhooks rather than CodePipeline.
+
+The pipeline service role must trust codepipeline.amazonaws.com and access its artifact bucket, the specific connection/repository/branch, and its specific deploy target. The S3 pipeline needs PutObject and applicable bucket/version read APIs on the website bucket; CodeDeploy and Beanstalk actions need their provider-specific deployment permissions; the build action needs StartBuild and BatchGetBuilds on academy-container. Use official provider service-role guidance and lab-approved roles. Never paste credentials into these JSON files.

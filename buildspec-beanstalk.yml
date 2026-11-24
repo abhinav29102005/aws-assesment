@@ -1,0 +1,17 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  build:
+    on-failure: ABORT
+    commands:
+    - cd "$CODEBUILD_SRC_DIR/04-beanstalk"
+    - node --test app.test.js
+    - mkdir -p "$CODEBUILD_SRC_DIR/dist"
+    - cp app.js package.json Procfile "$CODEBUILD_SRC_DIR/dist/"
+    - cp -r .ebextensions "$CODEBUILD_SRC_DIR/dist/"
+artifacts:
+  base-directory: dist
+  files:
+  - '**/*'

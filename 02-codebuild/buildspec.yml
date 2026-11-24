@@ -1,0 +1,24 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  pre_build:
+    commands:
+      - mkdir -p reports
+  build:
+    on-failure: ABORT
+    commands:
+      - node --test --test-reporter=junit --test-reporter-destination=reports/junit.xml app.test.js
+      - mkdir -p dist
+      - cp app.js package.json dist/
+reports:
+  unit-tests:
+    files:
+      - junit.xml
+    base-directory: reports
+    file-format: JUNITXML
+artifacts:
+  base-directory: dist
+  files:
+    - '**/*'

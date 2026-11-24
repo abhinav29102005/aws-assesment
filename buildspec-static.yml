@@ -1,0 +1,10 @@
+version: 0.2
+phases:
+  build:
+    commands:
+    - mkdir -p dist
+    - cp 01-static/index.html 01-static/styles.css 01-static/error.html dist/
+artifacts:
+  base-directory: dist
+  files:
+  - '**/*'

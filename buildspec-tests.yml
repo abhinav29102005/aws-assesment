@@ -1,0 +1,26 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+  pre_build:
+    commands:
+    - cd "$CODEBUILD_SRC_DIR/02-codebuild"
+    - mkdir -p reports
+  build:
+    on-failure: ABORT
+    commands:
+    - node --test --test-reporter=junit --test-reporter-destination=reports/junit.xml
+      app.test.js
+    - mkdir -p dist
+    - cp app.js package.json dist/
+reports:
+  unit-tests:
+    files:
+    - junit.xml
+    base-directory: 02-codebuild/reports
+    file-format: JUNITXML
+artifacts:
+  base-directory: 02-codebuild/dist
+  files:
+  - '**/*'
