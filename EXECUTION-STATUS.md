@@ -5,6 +5,7 @@
 - Node.js 22.22.0: 5 HTTP application tests passed, exit code 0.
 - Intentional assertion failure in a separate copy: 4 tests passed, 1 failed, exit code 1.
 - JavaScript and Bash syntax and YAML/JSON parsing passed.
+- Root static, test, EC2 and Beanstalk packaging commands were executed locally and passed; JUnit output and deployment artifact layouts were checked.
 - Docker build/run not executed: local daemon access was denied.
 
 ## AWS access checks

@@ -38,11 +38,17 @@ S3 website endpoints use HTTP. Use the exact endpoint shown for your region inst
 
 Architecture: GitHub push or PR → CodeBuild → private S3 artifacts and test reports.
 
-1. Use the second repository. In CodeBuild create `academy-tests` using GitHub and an authorized connection, main branch, managed Linux image that supports Node.js 22, small compute, no VPC unless required. Buildspec is root `buildspec-tests.yml`. Do not enable privileged mode for this test-only project.
+1. Use the 02-codebuild directory in this repository. In CodeBuild create `academy-tests` using GitHub and an authorized connection, main branch, managed Linux image that supports Node.js 22, small compute, no VPC unless required. Buildspec is root `buildspec-tests.yml`. Do not enable privileged mode for this test-only project.
 2. Choose an instructor-approved CodeBuild service role; enable CloudWatch Logs. Give it access to the specific private artifact bucket and report group. Select S3 ZIP artifacts, with a build-ID namespace or unique path so results do not overwrite one another.
 3. Enable webhook rebuilds. `webhook-filters.json` defines two OR groups: push to main; PR created/updated/reopened targeting main. Restrict source connection to this repository. Do not give untrusted PR builds secrets or ECR deployment privileges.
 4. Run a build. The buildspec selects Node.js 22, writes JUnit XML, runs five tests, and copies runtime files to `dist` only after the tests pass. CodeBuild uploads `dist` as its artifact. Save build ID, commit, test report, logs and artifact key.
-5. From a clean checkout run:
+5. From a clean checkout, enter the test directory before running the demonstration:
+
+```bash
+cd 02-codebuild
+```
+
+Then run:
 
 ```bash
 git switch -c demo/failing-test
@@ -64,7 +70,7 @@ Architecture: GitHub main → CodePipeline ZIP → CodeDeploy in place → tagge
 2. On the instance install a supported Node.js 22+ runtime at `/usr/bin/node` using an approved distribution method. Verify `/usr/bin/node --version`. The installer here deliberately does not silently add a third-party package repository. Also install curl.
 3. Copy `install-agent-ubuntu.sh` to the instance, set `AWS_REGION`, run it, and verify the CodeDeploy agent is active. This uses the AWS regional resource-kit bucket and the `latestv2` installer; confirm OS/agent compatibility against the linked AWS documentation for the chosen Ubuntu release.
 4. In CodeDeploy create application `academy-ec2`, compute EC2/on-premises. Create group `academy-ec2-group` with an approved **CodeDeploy service role**, deployment type **in place**, instance tag above, configuration `CodeDeployDefault.OneAtATime`, without a load balancer for this small lab. Enable automatic rollback on deployment failure. A single-instance in-place deployment can interrupt service; this lab does not claim zero downtime.
-5. Create pipeline `academy-ec2-pipeline` with GitHub source main, a CodeBuild test/package stage using root `buildspec-ec2.yml`, then CodeDeploy action targeting that application/group. The root `appspec.yml` maps application files and the systemd unit. Hooks stop the previous service, verify runtime and create the user, install file permissions, start the service and validate `/health`.
+5. Create pipeline `academy-ec2-pipeline` with GitHub source main, a CodeBuild test/package stage using root `buildspec-ec2.yml`, then CodeDeploy action targeting that application/group. The packaged root `appspec.yml` maps application files and the systemd unit. Hooks stop the previous service, verify runtime and create the user, install file permissions, start the service and validate `/health`.
 6. Run deployment; watch CodePipeline and CodeDeploy instance lifecycle events. On EC2 run `systemctl status academy-app` and `curl --fail http://127.0.0.1:8080/health`. Open `http://PUBLIC_IP:8080/` from the permitted IP.
 7. Change the version to 1.0.1 and its unit-test expectation, commit and push. Capture the new execution and application response. Record a deployment ID and successful ValidateService event.
 
@@ -74,10 +80,10 @@ Architecture: GitHub main → CodePipeline ZIP → CodeDeploy in place → tagge
 
 Architecture: GitHub main → CodePipeline → Beanstalk Standard Node.js web environment.
 
-1. Use the fourth repository. Create a Beanstalk **Standard**, Web server, current supported Node.js 22+ platform environment. Configure a load-balanced environment with at least two healthy instances across appropriate availability zones; choose lab-permitted instance types. Select the approved Beanstalk service role and EC2 instance profile. Create the environment and wait for healthy status before adding the pipeline.
+1. Use this repository. Create a Beanstalk **Standard**, Web server, current supported Node.js 22+ platform environment. Configure a load-balanced environment with at least two healthy instances across appropriate availability zones; choose lab-permitted instance types. Select the approved Beanstalk service role and EC2 instance profile. Create the environment and wait for healthy status before adding the pipeline.
 2. `Procfile` starts `node app.js`. The app obeys Beanstalk's injected `PORT`. `.ebextensions/deployment.config` selects immutable application deployments and immutable configuration updates; `/health` is the process health path. Confirm these settings in the environment configuration after initial creation. Immutable deployments temporarily require replacement instances and quota/budget headroom.
 3. Set `APP_ENV=staging` in environment properties. The JSON options files can be applied using `aws elasticbeanstalk update-environment --environment-name YOUR_ENV --option-settings file://options-staging.json`. Do not set the PORT property manually. A second independently provisioned environment can use `options-production.json` for production; alternatively change the same demonstration environment's property and record that it is a configuration demonstration, not two separate deployments.
-4. Create pipeline `academy-beanstalk` from the fourth GitHub repository main, a CodeBuild test/package stage using root `buildspec-beanstalk.yml`, then deployment provider Elastic Beanstalk, selecting the real application and environment. Source ZIP must have `package.json`, `app.js`, `Procfile`, and `.ebextensions` at its root.
+4. Create pipeline `academy-beanstalk` from this GitHub repository main, a CodeBuild test/package stage using root `buildspec-beanstalk.yml`, then deployment provider Elastic Beanstalk, selecting the real application and environment. The CodeBuild output ZIP must have `package.json`, `app.js`, `Procfile`, and `.ebextensions` at its root; select that artifact as deployment input.
 5. Check initial endpoint and health. Start `APP_URL=https://YOUR_ENDPOINT bash check-availability.sh > availability.log` using the actual scheme/URL shown by AWS. Push a version change to main. Monitor CodePipeline, Beanstalk events, environment health and the request log during the replacement process. Save old/new versions and execution ID.
 6. Verify response includes `environment: staging`; set the production option, wait for ready/healthy, and verify `environment: production`. Capture the properties and responses without secrets.
 
@@ -87,7 +93,7 @@ An ordinary single-instance or all-at-once deployment does not demonstrate zero 
 
 Architecture: GitHub main → CodePipeline source → privileged CodeBuild → ECR.
 
-1. Use the fifth repository. In ECR create private `academy-demo`, immutable tags, encryption enabled, and the lab-approved scanning configuration. Record its repository URI. Optional CLI creation: `aws ecr create-repository --repository-name academy-demo --image-tag-mutability IMMUTABLE`. This command needs valid credentials and does not run automatically in this package.
+1. Use this repository. In ECR create private `academy-demo`, immutable tags, encryption enabled, and the lab-approved scanning configuration. Record its repository URI. Optional CLI creation: `aws ecr create-repository --repository-name academy-demo --image-tag-mutability IMMUTABLE`. This command needs valid credentials and does not run automatically in this package.
 2. Create CodeBuild project `academy-container`, source CodePipeline, artifacts CodePipeline, managed Linux image supporting Node.js 22 and Docker, **privileged mode enabled**. Use root `buildspec-container.yml`. Define nonsecret `ECR_REPOSITORY_URI` as the exact URI. AWS provides `AWS_DEFAULT_REGION`, source revision and build number.
 3. Its role needs CloudWatch Logs, the pipeline artifact bucket, `ecr:GetAuthorizationToken` (resource `*`, because that action cannot be scoped), and push actions on the one repository: `BatchCheckLayerAvailability`, `InitiateLayerUpload`, `UploadLayerPart`, `CompleteLayerUpload`, `PutImage`. Add `BatchGetImage`/`GetDownloadUrlForLayer` only if needed for pulling private base images. Do not grant registry-wide administration.
 4. Create `academy-container-pipeline`: GitHub source main → CodeBuild `academy-container`. Output artifact name `ImageDefinitions`. Docker uses an unprivileged runtime user and health check. The buildspec tests the application, builds and tags, then pushes only if `CODEBUILD_BUILD_SUCCEEDING` is 1. Tag is 12 characters of commit plus build number, so a rebuild of the same commit does not collide with immutable tags.
@@ -100,7 +106,7 @@ Optional ECS extension: create an ECS/Fargate cluster, compatible task definitio
 
 Each folder can also be exported as a separate source root, but the configured repository uses root buildspecs for the monorepo. `tools/package-sources.py` generates clean ZIP source bundles in a directory you supply; no parent folder is added. The test build produces runtime files separately in CodeBuild. Keep transient local logs and credentials out of source bundles.
 
-Local verification: JavaScript syntax, shell syntax and YAML/JSON parsing passed. The shared app's five HTTP tests passed on Node.js 22.22.0. The copied intentionally broken test yielded 4 passed, 1 failed, exit 1. CloudFormation, cloud IAM permissions, AWS build images, Docker execution, host hooks, trigger events and live endpoints still require actual AWS validation. The included report makes the same distinction.
+Local verification: JavaScript syntax, shell syntax and YAML/JSON parsing passed. The shared app's five HTTP tests passed on Node.js 22.22.0. The copied intentionally broken test yielded 4 passed, 1 failed, exit 1. CloudFormation, cloud IAM permissions, AWS build images, Docker execution, host hooks, trigger events and live endpoints still require actual AWS validation. The report makes the same distinction. Root static, test, EC2 and Beanstalk packaging commands were subsequently run locally and their output contents validated. This does not validate any AWS stage.
 
 ## Evidence needed before final submission
 
